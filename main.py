@@ -289,11 +289,11 @@ while running:
                 else:
                     text += event.unicode
                 if event.type == pygame.KEYDOWN and player1_active:
-                    if event.key == pygame.K_RETURN:
-                        if player1_text.lower() == word.lower():
-                            player1_score += 100
-                            player1_text = ''
-                            scrambled_word = ''
+            if event.key == pygame.K_RETURN:
+                if player1_text.lower() == word.lower():
+                    player1_score += 100
+                    player1_text = ''
+                    scrambled_word = ''
                 else:
                     player1_guesses -= 1
                     player1_text = ''
