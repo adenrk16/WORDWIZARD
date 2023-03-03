@@ -288,7 +288,7 @@ while running:
                     running = False
                 else:
                     text += event.unicode
-        if event.type == pygame.KEYDOWN and player1_active:
+                if event.type == pygame.KEYDOWN and player1_active:
             if event.key == pygame.K_RETURN:
                 if player1_text.lower() == word.lower():
                     player1_score += 100
@@ -303,18 +303,18 @@ while running:
                 player1_text += event.unicode
 
                 # Check if player 2 is typing in the input box
-            if event.type == pygame.KEYDOWN and player2_active:
-                if event.key == pygame.K_RETURN:
-                    if player2_text.lower() == word.lower():
-                        player2_score += 100
-                        player2_text = ''
-                        scrambled_word = ''
-                    else:
-                        player2_guesses -= 1
-                        player2_text = ''
-                elif event.key == pygame.K_BACKSPACE:
-                    player2_text = player2_text[:-1]
+        if event.type == pygame.KEYDOWN and player2_active:
+            if event.key == pygame.K_RETURN:
+                if player2_text.lower() == word.lower():
+                    player2_score += 100
+                    player2_text = ''
+                    scrambled_word = ''
                 else:
+                    player2_guesses -= 1
+                    player2_text = ''
+            elif event.key == pygame.K_BACKSPACE:
+                player2_text = player2_text[:-1]
+            else:
                     player2_text += event.unicode
         level1_surface.fill(BLUE)
         level2_surface.fill(BLUE)
