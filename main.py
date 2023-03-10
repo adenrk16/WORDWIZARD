@@ -263,7 +263,7 @@ level_screen_surface.blit(multiplayer_text, multiplayer_text_rect)
 # Drawing Text on screen
 draw_text("Word Wizard", font_big, (255, 255, 255), main_menu_surface, 225, 100)
 draw_text("GAME OVER", font_big, WHITE, game_over_surface, 225, 100)
-draw_text("Level Completed! You won Congratulations!", font_big, WHITE, level_completed_surface, 105, 100)
+draw_text("Level Completed! You won Congratulations!", font_big, WHITE, level_completed_surface, 10, 100)
 draw_text("Instructions", font_big, (255, 255, 255), instructions_screen_surface, 225, 50)
 draw_text("Word Scramble: ", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 120)
 draw_text("A scrambled word will appear on the screen.", instructions_font, (255, 255, 255), instructions_screen_surface, 10,
