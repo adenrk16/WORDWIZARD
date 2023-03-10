@@ -5,25 +5,30 @@ import webbrowser
 # Initialize pygame
 pygame.font.init()
 pygame.init()
-# Color variables
 
+#Implement Sound
+pygame.mixer.music.load("background_music.ogg")
+pygame.mixer.music.play(-1)
+select = pygame.mixer.Sound("confirmMenu.ogg")
+
+'''
+Game Variables
+'''
+
+# Color Variables
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (64, 92, 128)
 
-# List of words for the game
-with open("5000-words.txt") as f:
-    word_list = f.readlines()
-word_list = [word.strip() for word in word_list]
-
-# Game variables
-word = ""
+level_one_word = ""
+level_two_word = ""
+level_three_word = ""
 scrambled_word = ""
 guesses = 3
 score = 0
 
 # Input box variables
-input_box = pygame.Rect(50, 175, 140, 32)
+input_box = pygame.Rect(50, 175, 300, 32)
 active = True
 text = ''
 
@@ -31,9 +36,10 @@ player1_guesses = 3
 player2_guesses = 3
 player1_score = 0
 player2_score = 0
+
 # Input box variables
-input_box1 = pygame.Rect(50, 190, 140, 32)
-input_box2 = pygame.Rect(400, 190, 140, 32)
+input_box1 = pygame.Rect(50, 190, 300, 32)
+input_box2 = pygame.Rect(400, 190, 300, 32)
 player1_active = False
 player2_active = True
 player1_text = ''
@@ -92,11 +98,17 @@ game_over_surface = pygame.Surface((width, height))
 # Multiplayer
 multiplayer_surface = pygame.Surface((width, height))
 
+# Play Hangman Surface
+playHangman_surface = pygame.Surface((width, height))
+
+current_surface = main_menu_surface
+
 # Making game window
-screen = Screen("Word Wizard", 800, 600, (255, 255, 255), main_menu_surface)
+screen = Screen("Word Wizard", 800, 600, (255, 255, 255), current_surface)
 font = pygame.font.Font('./DeterminationSansWeb.ttf', 40)
 font_big = pygame.font.Font('./DeterminationSansWeb.ttf', 70)
 font_small = pygame.font.Font('./arial.ttf', 15)
+instructions_font = pygame.font.Font('./DeterminationSansWeb.ttf', 30)
 main_menu_surface.fill(BLUE)
 level_screen_surface.fill(BLUE)
 instructions_screen_surface.fill(BLUE)
@@ -107,6 +119,30 @@ pause_surface.fill(BLUE)
 level_completed_surface.fill(BLUE)
 game_over_surface.fill(BLUE)
 multiplayer_surface.fill(BLUE)
+playHangman_surface.fill(BLUE)
+
+'''
+Generating Words for the different levels
+'''
+# Level 1:  List of words for the game
+with open("level_one_words.txt") as f:
+    level_one_wordList = f.readlines()
+level_one_wordList = [level_one_word.strip() for level_one_word in level_one_wordList]
+
+# Level 2:  List of words for the game
+with open("level_two_words.txt") as f:
+    level_two_wordList = f.readlines()
+level_two_wordList = [level_two_word.strip() for level_two_word in level_two_wordList]
+
+# Level 3:  List of words for the game
+with open("level_three_words.txt") as f:
+    level_three_wordList = f.readlines()
+level_three_wordList = [level_three_word.strip() for level_three_word in level_three_wordList]
+
+# Multiplayer
+with open("level_three_words.txt") as f:
+    multiplayer_wordList = f.readlines()
+multiplayer_word_list = [level_three_word.strip() for level_three_word in multiplayer_wordList]
 
 
 # Drawing text
@@ -137,7 +173,7 @@ pygame.draw.rect(main_menu_surface, BLUE, instructions_button)
 
 # Back
 
-back_button = pygame.Rect(300, 500, 200, 50)
+back_button = pygame.Rect(300, 530, 200, 50)
 pygame.draw.rect(instructions_screen_surface, BLUE, back_button)
 pygame.draw.rect(level_screen_surface, BLUE, back_button)
 
@@ -154,6 +190,9 @@ pygame.draw.rect(level_screen_surface, BLUE, level3_button)
 # Documentation
 documentation_button = pygame.Rect(360, 275, 200, 100)
 pygame.draw.rect(main_menu_surface, BLUE, documentation_button)
+# Hangman
+playHangman_button = pygame.Rect(270, 250, 200, 100)
+pygame.draw.rect(level_screen_surface, BLUE, playHangman_button)
 # Multiplayer
 multiplayer_button = pygame.Rect(270, 400, 200, 100)
 pygame.draw.rect(level_screen_surface, BLUE, multiplayer_button)
@@ -209,6 +248,12 @@ documentation_text_rect = documentation_text.get_rect()
 documentation_text_rect.center = documentation_button.center
 main_menu_surface.blit(documentation_text, documentation_text_rect)
 
+# Hangman button
+playHangman_text = font_big.render("Play Hangman", True, (255, 255, 255))
+playHangman_text_rect = playHangman_text.get_rect()
+playHangman_text_rect.center = playHangman_button.center
+level_screen_surface.blit(playHangman_text, playHangman_text_rect)
+
 # Multiplayer button
 multiplayer_text = font_big.render("Multiplayer", True, (255, 255, 255))
 multiplayer_text_rect = multiplayer_text.get_rect()
@@ -218,22 +263,33 @@ level_screen_surface.blit(multiplayer_text, multiplayer_text_rect)
 # Drawing Text on screen
 draw_text("Word Wizard", font_big, (255, 255, 255), main_menu_surface, 225, 100)
 draw_text("GAME OVER", font_big, WHITE, game_over_surface, 225, 100)
-draw_text("LEVEL COMPLETED", font_big, WHITE, level_completed_surface, 225, 100)
+draw_text("Level Completed! You won Congratulations!", font_big, WHITE, level_completed_surface, 105, 100)
 draw_text("Instructions", font_big, (255, 255, 255), instructions_screen_surface, 225, 50)
-draw_text("Word Scramble: ", font, (255, 255, 255), instructions_screen_surface, 10, 150)
-draw_text("A scrambled word will appear on the screen.", font_small, (255, 255, 255), instructions_screen_surface, 10,
-          210)
-draw_text("Unscramble the word in three guesses or fewer.", font_small, (255, 255, 255), instructions_screen_surface,
+draw_text("Word Scramble: ", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 120)
+draw_text("A scrambled word will appear on the screen.", instructions_font, (255, 255, 255), instructions_screen_surface, 10,
+          150)
+draw_text("Unscramble the word in three guesses or fewer.", instructions_font, (255, 255, 255), instructions_screen_surface,
           10,
-          220)
-draw_text("To make a guess, type it in the box", font_small, (255, 255, 255), instructions_screen_surface, 10, 240)
-draw_text("Correct Guesses will give you new words.", font_small, (255, 255, 255), instructions_screen_surface, 10, 250)
-draw_text("Incorrect Guesses will drop your guess counter.", font_small, (255, 255, 255), instructions_screen_surface,
-          10, 260)
-draw_text("Try your best at word scramble.", font_small, (255, 255, 255), instructions_screen_surface, 10, 270)
+          180)
+draw_text("To make a guess, type it in the box", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 210)
+draw_text("Correct Guesses will give you new words.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 240)
+draw_text("Incorrect Guesses will drop your guess counter.", instructions_font, (255, 255, 255), instructions_screen_surface,
+          10, 270)
+draw_text("Try your best at word scramble.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 300)
 
-current_surface = main_menu_surface
+draw_text("Hangman: ", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 330)
+draw_text("You will be multiple blank spaces.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 360)
+draw_text("Guess the word by clicking on the letters.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 390)
+draw_text("Right guesses will appear on the blank spaces.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 420)
+draw_text("Wrong Guesses will build the Hangman.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 450)
+draw_text("9 Wrong Guesses, GAME OVER", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 480)
+draw_text("Try your best at Hangman.", instructions_font, (255, 255, 255), instructions_screen_surface, 10, 510)
 
+
+
+
+
+# main game loop
 running = True
 while running:
     for event in pygame.event.get():
@@ -242,25 +298,37 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
-            if play_button.collidepoint(pos):
+            if play_button.collidepoint(pos) and current_surface == main_menu_surface:
+                select.play()
                 current_surface = level_screen_surface
-            elif quit_button.collidepoint(pos):
+            elif quit_button.collidepoint(pos) and current_surface == main_menu_surface:
+                select.play()
                 running = False
-            elif instructions_button.collidepoint(pos):
+            elif instructions_button.collidepoint(pos) and current_surface == main_menu_surface:
+                select.play()
                 current_surface = instructions_screen_surface
             elif back_button.collidepoint(pos):
+                select.play()
                 current_surface = main_menu_surface
-            elif level1_button.collidepoint(pos):
+            elif level1_button.collidepoint(pos) and current_surface == level_screen_surface:
+                select.play()
                 current_surface = level1_surface
-            elif level2_button.collidepoint(pos):
+            elif level2_button.collidepoint(pos) and current_surface == level_screen_surface:
+                select.play()
                 current_surface = level2_surface
-            elif level3_button.collidepoint(pos):
+            elif level3_button.collidepoint(pos) and current_surface == level_screen_surface:
+                select.play()
                 current_surface = level3_surface
-            elif documentation_button.collidepoint(pos):
+            elif documentation_button.collidepoint(pos) and current_surface == main_menu_surface:
+                select.play()
                 webbrowser.open(
                     r"https://docs.google.com/document/d/1jn4zOt7qwukGf7bq7IPNrxrMMzPeT55Kqnf7PX_qGOM/edit?usp=sharing")
-            elif multiplayer_button.collidepoint(pos):
+            elif multiplayer_button.collidepoint(pos) and current_surface == level_screen_surface:
+                select.play()
                 current_surface = multiplayer_surface
+            elif playHangman_button.collidepoint(pos) and current_surface == level_screen_surface:
+                select.play()
+                current_surface = playHangman_surface
             elif input_box1.collidepoint(event.pos):
                 player1_active = True
                 player2_active = False
@@ -274,7 +342,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if active:
                 if event.key == pygame.K_RETURN:
-                    if text.lower() == word.lower():
+                    if text.lower() == level_one_word.lower() or level_two_word.lower() or level_three_word.lower():
                         score += 100
                         text = ''
                         scrambled_word = ''
@@ -285,12 +353,13 @@ while running:
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
                 elif event.key == pygame.K_ESCAPE:
+                    select.play()
                     running = False
                 else:
                     text += event.unicode
                 if event.type == pygame.KEYDOWN and player1_active:
                     if event.key == pygame.K_RETURN:
-                        if player1_text.lower() == word.lower():
+                        if player1_text.lower() == level_one_word.lower() or level_two_word.lower() or level_three_word.lower():
                             player1_score += 100
                             player1_text = ''
                             scrambled_word = ''
@@ -305,7 +374,7 @@ while running:
                 # Check if player 2 is typing in the input box
         if event.type == pygame.KEYDOWN and player2_active:
             if event.key == pygame.K_RETURN:
-                if player2_text.lower() == word.lower():
+                if player2_text.lower() == level_one_word.lower() or level_two_word.lower() or level_three_word.lower():
                     player2_score += 100
                     player2_text = ''
                     scrambled_word = ''
@@ -315,18 +384,19 @@ while running:
             elif event.key == pygame.K_BACKSPACE:
                 player2_text = player2_text[:-1]
             else:
-                    player2_text += event.unicode
+                player2_text += event.unicode
         level1_surface.fill(BLUE)
         level2_surface.fill(BLUE)
         level3_surface.fill(BLUE)
         multiplayer_surface.fill(BLUE)
+        playHangman_surface.fill(BLUE)
 
     if current_surface == level1_surface:
         pygame.draw.rect(level1_surface, BLUE, back_button)
         level1_surface.blit(back_text, back_text_rect)
         if not scrambled_word:
-            word = random.choice(word_list)
-            scrambled_word = "".join(random.sample(word, len(word)))
+            level_one_word = random.choice(level_one_wordList)
+            scrambled_word = "".join(random.sample(level_one_word, len(level_one_word)))
 
         # Draw the scrambled word on the screen
         draw_text("Scrambled Word: " + scrambled_word, font, WHITE, level1_surface, 50, 50)
@@ -356,7 +426,7 @@ while running:
         pygame.draw.rect(level2_surface, BLUE, back_button)
         level2_surface.blit(back_text, back_text_rect)
         if not scrambled_word:
-            word = random.choice(word_list)
+            word = random.choice(level_two_wordList)
             scrambled_word = "".join(random.sample(word, len(word)))
 
         # Draw the scrambled word on the screen
@@ -386,7 +456,7 @@ while running:
         pygame.draw.rect(level3_surface, BLUE, back_button)
         level3_surface.blit(back_text, back_text_rect)
         if not scrambled_word:
-            word = random.choice(word_list)
+            word = random.choice(level_three_wordList)
             scrambled_word = "".join(random.sample(word, len(word)))
 
         # Draw the scrambled word on the screen
@@ -413,11 +483,11 @@ while running:
             score = 0
             guesses = 3
     elif current_surface == multiplayer_surface:
-        multiplayer_surface.blit(back_text, back_text_rect)
         pygame.draw.rect(multiplayer_surface, BLUE, back_button)
+        multiplayer_surface.blit(back_text, back_text_rect)
         # Choose a random word from the list
         if not scrambled_word:
-            word = random.choice(word_list)
+            word = random.choice(multiplayer_word_list)
             scrambled_word = "".join(random.sample(word, len(word)))
 
         # Draw the scrambled word on the screen
@@ -472,7 +542,13 @@ while running:
             player2_guesses = 3
             player1_score = 0
             player2_score = 0
+
+
+    elif current_surface == playHangman_surface:
+        import hangman
+
     pygame.display.update()
     screen.blit(current_surface, (0, 0))
     pygame.display.update()
 pygame.quit()
+
